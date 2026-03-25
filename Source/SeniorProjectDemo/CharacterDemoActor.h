@@ -2,6 +2,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
 #include "CharacterDemoActor.generated.h"
 
 UCLASS()
@@ -16,13 +18,27 @@ public:
     AActor* TargetActor;
 
     UPROPERTY()
-    USkeletalMeshComponent* TargetMesh;  // ← renamed from SkeletalMeshComp
+    USkeletalMeshComponent* TargetMesh;
 
-    UFUNCTION(BlueprintCallable)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setup")
+    FString GeminiAPIKey;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+    FString CharacterDescription;
+
+    UFUNCTION(BlueprintCallable, Category = "Appearance")
     void SetMorphTargetValue(FString MorphTargetName, float Value);
 
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "Appearance")
     void ApplyAppearanceJSON(FString JSONString);
+
+    UFUNCTION(BlueprintCallable, Category = "Appearance")
+    void GenerateAppearanceFromText(FString Description);
+
+private:
+    void OnGeminiResponse(FHttpRequestPtr Request,
+        FHttpResponsePtr Response, bool bSuccess);
+    FString BuildPrompt(FString Description);
 
 protected:
     virtual void BeginPlay() override;
