@@ -1,9 +1,11 @@
 ﻿#pragma once
+
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
+
 #include "CharacterDemoActor.generated.h"
 
 UCLASS()
@@ -20,7 +22,6 @@ public:
     UPROPERTY()
     USkeletalMeshComponent* TargetMesh;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setup")
     FString GeminiAPIKey;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
@@ -38,7 +39,10 @@ public:
 private:
     void OnGeminiResponse(FHttpRequestPtr Request,
         FHttpResponsePtr Response, bool bSuccess);
+
     FString BuildPrompt(FString Description);
+
+    FString LoadAPIKeyFromEnv();
 
 protected:
     virtual void BeginPlay() override;
