@@ -26,7 +26,7 @@ void ACharacterDemoActor::BeginPlay()
 {
     Super::BeginPlay();
 
-    // 🔥 Load API key from .env
+    // Load API key from .env
     GeminiAPIKey = LoadAPIKeyFromEnv();
 
     if (GeminiAPIKey.IsEmpty())
@@ -51,7 +51,7 @@ void ACharacterDemoActor::BeginPlay()
 
     UE_LOG(LogTemp, Log, TEXT("Mesh found! Ready."));
 
-    GenerateAppearanceFromText(CharacterDescription);
+    //GenerateAppearanceFromText(CharacterDescription);
 }
 
 FString ACharacterDemoActor::LoadAPIKeyFromEnv()
