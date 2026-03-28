@@ -87,138 +87,16 @@ FString ACharacterDemoActor::LoadAPIKeyFromEnv()
 FString ACharacterDemoActor::BuildPrompt(FString Description)
 {
     TArray<FString> MorphTargets = {
-        // Cheeks
-        "l-cheek-bones-decr","l-cheek-bones-incr","l-cheek-inner-decr","l-cheek-inner-incr",
-        "l-cheek-trans-down","l-cheek-trans-up","l-cheek-volume-decr","l-cheek-volume-incr",
-        "r-cheek-bones-decr","r-cheek-bones-incr","r-cheek-inner-decr","r-cheek-inner-incr",
-        "r-cheek-trans-down","r-cheek-trans-up","r-cheek-volume-decr","r-cheek-volume-incr",
-
-        // Chin
-        "chin-bones-decr","chin-bones-incr","chin-cleft-decr","chin-cleft-incr",
-        "chin-height-decr","chin-height-incr","chin-jaw-drop-decr","chin-jaw-drop-incr",
-        "chin-prognathism-decr","chin-prognathism-incr","chin-prominent-decr","chin-prominent-incr",
-        "chin-triangle","chin-width-decr","chin-width-incr",
-
-        // Left Ear
-        "l-ear-flap-decr","l-ear-flap-incr","l-ear-lobe-decr","l-ear-lobe-incr",
-        "l-ear-rot-backward","l-ear-rot-forward","l-ear-scale-decr",
-        "l-ear-scale-depth-decr","l-ear-scale-depth-incr","l-ear-scale-incr",
-        "l-ear-scale-vert-decr","l-ear-scale-vert-incr",
-        "l-ear-shape-pointed","l-ear-shape-round","l-ear-shape-square","l-ear-shape-triangle",
-        "l-ear-trans-backward","l-ear-trans-down","l-ear-trans-forward","l-ear-trans-up",
-        "l-ear-wing-decr","l-ear-wing-incr",
-
-        // Right Ear
-        "r-ear-flap-decr","r-ear-flap-incr","r-ear-lobe-decr","r-ear-lobe-incr",
-        "r-ear-rot-backward","r-ear-rot-forward","r-ear-scale-decr",
-        "r-ear-scale-depth-decr","r-ear-scale-depth-incr","r-ear-scale-incr",
-        "r-ear-scale-vert-decr","r-ear-scale-vert-incr",
-        "r-ear-shape-pointed","r-ear-shape-round","r-ear-shape-square","r-ear-shape-triangle",
-        "r-ear-trans-backward","r-ear-trans-down","r-ear-trans-forward","r-ear-trans-up",
-        "r-ear-wing-decr","r-ear-wing-incr",
-
-        // Eyebrows
-        "eyebrows-angle-down","eyebrows-angle-up",
-        "eyebrows-trans-backward","eyebrows-trans-down",
-        "eyebrows-trans-forward","eyebrows-trans-up",
-
-        // Left Eye
-        "l-eye-bag-decr","l-eye-bag-height-decr","l-eye-bag-height-incr",
-        "l-eye-bag-in","l-eye-bag-incr","l-eye-bag-out",
-        "l-eye-corner1-down","l-eye-corner1-up","l-eye-corner2-down","l-eye-corner2-up",
-        "l-eye-epicanthus-in","l-eye-epicanthus-out",
-        "l-eye-eyefold-angle-down","l-eye-eyefold-angle-up",
-        "l-eye-eyefold-concave","l-eye-eyefold-convex",
-        "l-eye-eyefold-down","l-eye-eyefold-up",
-        "l-eye-height1-decr","l-eye-height1-incr",
-        "l-eye-height2-decr","l-eye-height2-incr",
-        "l-eye-height3-decr","l-eye-height3-incr",
-        "l-eye-push1-in","l-eye-push1-out","l-eye-push2-in","l-eye-push2-out",
-        "l-eye-scale-decr","l-eye-scale-incr",
-        "l-eye-trans-down","l-eye-trans-in","l-eye-trans-out","l-eye-trans-up",
-
-        // Right Eye
-        "r-eye-bag-decr","r-eye-bag-height-decr","r-eye-bag-height-incr",
-        "r-eye-bag-in","r-eye-bag-incr","r-eye-bag-out",
-        "r-eye-corner1-down","r-eye-corner1-up","r-eye-corner2-down","r-eye-corner2-up",
-        "r-eye-epicanthus-in","r-eye-epicanthus-out",
-        "r-eye-eyefold-angle-down","r-eye-eyefold-angle-up",
-        "r-eye-eyefold-concave","r-eye-eyefold-convex",
-        "r-eye-eyefold-down","r-eye-eyefold-up",
-        "r-eye-height1-decr","r-eye-height1-incr",
-        "r-eye-height2-decr","r-eye-height2-incr",
-        "r-eye-height3-decr","r-eye-height3-incr",
-        "r-eye-push1-in","r-eye-push1-out","r-eye-push2-in","r-eye-push2-out",
-        "r-eye-scale-decr","r-eye-scale-incr",
-        "r-eye-trans-down","r-eye-trans-in","r-eye-trans-out","r-eye-trans-up",
-
-        // Forehead
-        "forehead-nubian-decr","forehead-nubian-incr",
-        "forehead-scale-vert-decr","forehead-scale-vert-incr",
-        "forehead-temple-decr","forehead-temple-incr",
-        "forehead-trans-backward","forehead-trans-forward",
-
-        // Head
-        "head-age-decr","head-age-incr",
-        "head-angle-in","head-angle-out",
-        "head-back-scale-depth-decr","head-back-scale-depth-incr",
-        "head-diamond","head-fat-decr","head-fat-incr",
-        "head-invertedtriangular","head-oval","head-rectangular","head-round",
-        "head-scale-depth-decr","head-scale-depth-incr",
-        "head-scale-horiz-decr","head-scale-horiz-incr",
-        "head-scale-vert-decr","head-scale-vert-incr",
-        "head-square",
-        "head-trans-backward","head-trans-down","head-trans-forward",
-        "head-trans-in","head-trans-out","head-trans-up",
-        "head-triangular",
-
-        // Mouth
-        "mouth-angles-down","mouth-angles-up",
-        "mouth-cupidsbow-decr","mouth-cupidsbow-incr",
-        "mouth-cupidsbow-width-decr","mouth-cupidsbow-width-incr",
-        "mouth-dimples-in","mouth-dimples-out",
-        "mouth-laugh-lines-in","mouth-laugh-lines-out",
-        "mouth-lowerlip-ext-down","mouth-lowerlip-ext-up",
-        "mouth-lowerlip-height-decr","mouth-lowerlip-height-incr",
-        "mouth-lowerlip-middle-down","mouth-lowerlip-middle-up",
-        "mouth-lowerlip-volume-decr","mouth-lowerlip-volume-incr",
-        "mouth-lowerlip-width-decr","mouth-lowerlip-width-incr",
-        "mouth-philtrum-volume-decr","mouth-philtrum-volume-incr",
-        "mouth-scale-depth-decr","mouth-scale-depth-incr",
-        "mouth-scale-horiz-decr","mouth-scale-horiz-incr",
-        "mouth-scale-vert-decr","mouth-scale-vert-incr",
-        "mouth-trans-backward","mouth-trans-down","mouth-trans-forward",
-        "mouth-trans-in","mouth-trans-out","mouth-trans-up",
-        "mouth-upperlip-ext-down","mouth-upperlip-ext-up",
-        "mouth-upperlip-height-decr","mouth-upperlip-height-incr",
-        "mouth-upperlip-middle-down","mouth-upperlip-middle-up",
-        "mouth-upperlip-volume-decr","mouth-upperlip-volume-incr",
-        "mouth-upperlip-width-decr","mouth-upperlip-width-incr",
-
-        // Nose
-        "nose-base-down","nose-base-up",
-        "nose-compression-compress","nose-compression-uncompress",
-        "nose-curve-concave","nose-curve-convex",
-        "nose-flaring-decr","nose-flaring-incr",
-        "nose-greek-decr","nose-greek-incr",
-        "nose-hump-decr","nose-hump-incr",
-        "nose-nostrils-angle-down","nose-nostrils-angle-up",
-        "nose-nostrils-width-decr","nose-nostrils-width-incr",
-        "nose-point-down","nose-point-up",
-        "nose-point-width-decr","nose-point-width-incr",
-        "nose-scale-depth-decr","nose-scale-depth-incr",
-        "nose-scale-horiz-decr","nose-scale-horiz-incr",
-        "nose-scale-vert-decr","nose-scale-vert-incr",
-        "nose-septumangle-decr","nose-septumangle-incr",
-        "nose-trans-backward","nose-trans-down","nose-trans-forward",
-        "nose-trans-in","nose-trans-out","nose-trans-up",
-        "nose-volume-decr","nose-volume-incr",
-        "nose-width1-decr","nose-width1-incr",
-        "nose-width2-decr","nose-width2-incr",
-        "nose-width3-decr","nose-width3-incr"
+      
+        "head-diamond", "head-invertedtriangular","head-oval","head-rectangular","head-round",
+        "head-square",  "head-triangular", "head-fat-decr", "head-fat-incr"
     };
 
     FString MorphList;
+
+    ResetAllMorphTargets();
+
+    UE_LOG(LogTemp, Log, TEXT("Reset all morph targets to 0"));
 
     for (int i = 0; i < MorphTargets.Num(); i++)
     {
@@ -231,31 +109,34 @@ FString ACharacterDemoActor::BuildPrompt(FString Description)
 
     return FString::Printf(TEXT(
         "You are an AI that converts character descriptions into morph target values.\n\n"
-
         "Character Description:\n%s\n\n"
-
         "Available morph targets:\n[%s]\n\n"
-
         "STRICT RULES:\n"
         "1. Output ONLY valid JSON\n"
         "2. Do NOT include explanations\n"
         "3. Do NOT include markdown\n"
         "4. Use ONLY morph names from the list\n"
-        "5. Each value MUST be a float between 0.0 and 1.0\n"
-        "6. Include ONLY relevant morph targets\n"
-        "7. LEFT and RIGHT features MUST be symmetrical unless explicitly specified\n"
-        "8. If a feature is not mentioned, DO NOT include it\n"
-        "10. Values above 0.5 are EXTREME and should be avoided\n"
-        "11. Prefer values between 0.1 and 0.4 for natural human appearance\n"
-        "12. Related features should be adjusted together for natural results\n"
-        "   - Example: increasing cheekbones may also slightly increase cheek volume\n"
-        "   - Example: increasing eye size may slightly raise eyebrows\n"
-        "   - Keep secondary adjustments weaker than primary ones\n"
-
+        "5. NEVER combine two head shapes together - pick ONLY ONE\n"
+        "6. ALWAYS use the exact max value shown below for the chosen shape\n"
+        "7. If no head shape is mentioned don't need to include the head shape parameters\n"
+        "HEAD SHAPE MAX VALUES (always use these exact values):\n"
+        "- head-round: 0.132057\n"
+        "- head-square: 0.1\n"
+        "- head-oval: 0.13\n"
+        "- head-rectangular: 0.090274\n"
+        "- head-triangular: 0.074856\n"
+        "- head-invertedtriangular: 0.136986\n"
+        "- head-diamond: 0.101898\n"
+        "HEAD FAT RULES:\n"
+        "- head-fat-incr: use 0.2 for chubby/fat face, anything above looks weird\n"
+        "- head-fat-decr: use 0.1 for thin/slim face, anything above looks starving\n"
+        "- NEVER use head-fat-incr and head-fat-decr together\n"
+        "- If no fat/slim is mentioned, do NOT include either\n"
+        "EXAMPLE OUTPUT:\n"
         "{\n"
-        "  \"l-ear-scale-vert-incr\": 0.9,\n"
-        "  \"r-ear-scale-vert-incr\": 0.9\n"
+        "  \"head-oval\": 0.13\n"
         "}\n"
+
     ), *Description, *MorphList);
 }
 
@@ -396,5 +277,18 @@ void ACharacterDemoActor::ApplyAppearanceJSON(FString JSONString)
             double Value = Pair.Value->AsNumber();
             SetMorphTargetValue(Pair.Key, (float)Value);
         }
+    }
+}
+
+void ACharacterDemoActor::ResetAllMorphTargets()
+{
+    TArray<FString> AllMorphTargets = {
+        "head-diamond", "head-invertedtriangular", "head-oval", "head-rectangular",
+        "head-round", "head-square", "head-triangular", "head-fat-decr", "head-fat-incr"
+    };
+
+    for (const FString& MorphName : AllMorphTargets)
+    {
+        SetMorphTargetValue(MorphName, 0.0f);
     }
 }

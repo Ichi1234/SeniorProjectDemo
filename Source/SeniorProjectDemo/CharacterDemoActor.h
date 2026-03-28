@@ -36,6 +36,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Appearance")
     void GenerateAppearanceFromText(FString Description);
 
+    UFUNCTION(BlueprintCallable, Category = "Appearance")
+    void ResetAllMorphTargets();
+
 private:
     void OnGeminiResponse(FHttpRequestPtr Request,
         FHttpResponsePtr Response, bool bSuccess);
