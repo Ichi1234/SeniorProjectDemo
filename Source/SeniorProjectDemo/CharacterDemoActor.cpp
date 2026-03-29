@@ -52,6 +52,7 @@ void ACharacterDemoActor::BeginPlay()
     UE_LOG(LogTemp, Log, TEXT("Mesh found! Ready."));
 
     //GenerateAppearanceFromText(CharacterDescription);
+
 }
 
 FString ACharacterDemoActor::LoadAPIKeyFromEnv()
@@ -270,14 +271,20 @@ void ACharacterDemoActor::ApplyAppearanceJSON(FString JSONString)
         return;
     }
 
+    TMap<FString, float> AppliedValues;
+
     for (auto& Pair : JsonObject->Values)
     {
         if (Pair.Value->Type == EJson::Number)
         {
             double Value = Pair.Value->AsNumber();
             SetMorphTargetValue(Pair.Key, (float)Value);
+            AppliedValues.Add(Pair.Key, (float)Value);
         }
     }
+
+    OnAppearanceApplied.Broadcast();
+
 }
 
 void ACharacterDemoActor::ResetAllMorphTargets()
@@ -291,4 +298,10 @@ void ACharacterDemoActor::ResetAllMorphTargets()
     {
         SetMorphTargetValue(MorphName, 0.0f);
     }
+}
+
+float ACharacterDemoActor::GetMorphTargetValue(FString MorphTargetName)
+{
+    if (!TargetMesh) return 0.0f;
+    return TargetMesh->GetMorphTarget(FName(*MorphTargetName));
 }
