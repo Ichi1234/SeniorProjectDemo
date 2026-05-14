@@ -135,11 +135,11 @@ FString ACharacterDemoActor::BuildPrompt(FString Description)
         "- If no fat/slim is mentioned, do NOT include either\n"
 
         "SKIN TONE RULES:\n"
-        "- Add \"skin_tone\" field with value \"light\", \"medium\", or \"dark\"\n"
-        "- light = pale/fair/caucasian/asian light skin\n"
+        "- Always include \"skin_tone\" field\n"
+        "- Value must be exactly one of: \"light\", \"medium\", \"dark\"\n"
+        "- light = pale/fair/caucasian/asian\n"
         "- medium = tan/olive/latino/south asian\n"
         "- dark = brown/dark/african\n"
-        "- Always include skin_tone\n"
 
         "EXAMPLE OUTPUT:\n"
         "{\n"
@@ -324,45 +324,26 @@ void ACharacterDemoActor::SetSkinTone(FString SkinTone)
 {
     if (!TargetMesh) return;
 
-    UMaterialInterface* Body = nullptr;
-    UMaterialInterface* Ears = nullptr;
-    UMaterialInterface* Lips = nullptr;
-    UMaterialInterface* Nails = nullptr;
+    UMaterialInterface* Mat = nullptr;
 
-    if (SkinTone == "light")
-    {
-        Body = Mat_Body_Light;
-        Ears = Mat_Ears_Light;
-        Lips = Mat_Lips_Light;
-        Nails = Mat_Nails_Light;
-    }
-    else if (SkinTone == "medium")
-    {
-        Body = Mat_Body_Medium;
-        Ears = Mat_Ears_Medium;
-        Lips = Mat_Lips_Medium;
-        Nails = Mat_Nails_Medium;
-    }
-    else if (SkinTone == "dark")
-    {
-        Body = Mat_Body_Dark;
-        Ears = Mat_Ears_Dark;
-        Lips = Mat_Lips_Dark;
-        Nails = Mat_Nails_Dark;
-    }
+    if (SkinTone == "light")        Mat = Mat_Light;
+    else if (SkinTone == "medium")  Mat = Mat_Medium;
+    else if (SkinTone == "dark")    Mat = Mat_Dark;
     else
     {
         UE_LOG(LogTemp, Warning, TEXT("Unknown skin tone: %s"), *SkinTone);
         return;
     }
 
-    // Slot indices — check yours in the mesh details panel
-    // Order matches: Eyes=0, Body=1, Nipple=2, Lips=3, Nails(finger)=4, Nails(toe)=5, Ears=6
-    if (Body)  TargetMesh->SetMaterial(1, Body);
-    if (Lips)  TargetMesh->SetMaterial(3, Lips);
-    if (Nails) TargetMesh->SetMaterial(4, Nails);
-    if (Nails) TargetMesh->SetMaterial(5, Nails);  // toenails same material
-    if (Ears)  TargetMesh->SetMaterial(6, Ears);
+    if (!Mat) return;
+
+    // Apply to all skin slots (skip Element 0 = eyes)
+    TargetMesh->SetMaterial(1, Mat); // body
+    TargetMesh->SetMaterial(2, Mat); // nipple
+    TargetMesh->SetMaterial(3, Mat); // lips
+    TargetMesh->SetMaterial(4, Mat); // fingernails
+    TargetMesh->SetMaterial(5, Mat); // toenails
+    TargetMesh->SetMaterial(6, Mat); // ears
 
     UE_LOG(LogTemp, Log, TEXT("Skin tone set to: %s"), *SkinTone);
 }

@@ -49,32 +49,14 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Appearance")
     void SetSkinTone(FString SkinTone); // "light", "medium", "dark"
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Light")
-    UMaterialInterface* Mat_Body_Light;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Light")
-    UMaterialInterface* Mat_Ears_Light;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Light")
-    UMaterialInterface* Mat_Lips_Light;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Light")
-    UMaterialInterface* Mat_Nails_Light;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin")
+    UMaterialInterface* Mat_Light;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Medium")
-    UMaterialInterface* Mat_Body_Medium;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Medium")
-    UMaterialInterface* Mat_Ears_Medium;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Medium")
-    UMaterialInterface* Mat_Lips_Medium;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Medium")
-    UMaterialInterface* Mat_Nails_Medium;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin")
+    UMaterialInterface* Mat_Medium;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Dark")
-    UMaterialInterface* Mat_Body_Dark;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Dark")
-    UMaterialInterface* Mat_Ears_Dark;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Dark")
-    UMaterialInterface* Mat_Lips_Dark;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin - Dark")
-    UMaterialInterface* Mat_Nails_Dark;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin")
+    UMaterialInterface* Mat_Dark;
 
 private:
     void OnGeminiResponse(FHttpRequestPtr Request,
