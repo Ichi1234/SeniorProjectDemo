@@ -251,6 +251,7 @@ FString ACharacterDemoActor::BuildPrompt(FString Description)
         "- head-rectangular: 0.090274, head-triangular: 0.074856\n"
         "- head-invertedtriangular: 0.136986, head-diamond: 0.101898\n\n"
         "HEAD FAT RULES:\n"
+<<<<<<< HEAD
         "- head-fat-incr: max 0.2 for chubby/fat face\n"
         "- head-fat-decr: max 0.1 for thin/slim face\n"
         "- NEVER use both together\n\n"
@@ -268,6 +269,21 @@ FString ACharacterDemoActor::BuildPrompt(FString Description)
         "- Old/elderly: head-age-incr (0.3-0.5)\n"
         "- Young/baby-faced: head-age-decr (0.2-0.4)\n\n"
         "EXAMPLE for 'tall muscular man with square jaw':\n"
+=======
+        "- head-fat-incr: use 0.2 for chubby/fat face, anything above looks weird\n"
+        "- head-fat-decr: use 0.1 for thin/slim face, anything above looks starving\n"
+        "- NEVER use head-fat-incr and head-fat-decr together\n"
+        "- If no fat/slim is mentioned, do NOT include either\n"
+
+        "SKIN TONE RULES:\n"
+        "- Always include \"skin_tone\" field\n"
+        "- Value must be exactly one of: \"light\", \"medium\", \"dark\"\n"
+        "- light = pale/fair/caucasian/asian\n"
+        "- medium = tan/olive/latino/south asian\n"
+        "- dark = brown/dark/african\n"
+
+        "EXAMPLE OUTPUT:\n"
+>>>>>>> 667b0d205b678c16f82756012cc30b18b57b9236
         "{\n"
         "  \"torso-scale-vert-incr\": 0.2,\n"
         "  \"upperlegs-height-incr\": 0.2,\n"
@@ -417,7 +433,60 @@ void ACharacterDemoActor::ApplyAppearanceJSON(FString JSONString)
         return;
     }
 
-    TMap<FString, float> AppliedValues;
+    // Save previous before applying new
+    PreviousAppearanceJSON = CurrentAppearanceJSON;
+    CurrentAppearanceJSON = JSONString;
+    bCanRollback = !PreviousAppearanceJSON.IsEmpty();
+
+    // Skin tone
+    FString SkinTone;
+    if (JsonObject->TryGetStringField(TEXT("skin_tone"), SkinTone))
+    {
+        SetSkinTone(SkinTone);
+    }
+
+    // Morph targets
+    for (auto& Pair : JsonObject->Values)
+    {
+        if (Pair.Value->Type == EJson::Number)
+        {
+            double Value = Pair.Value->AsNumber();
+            SetMorphTargetValue(Pair.Key, (float)Value);
+        }
+    }
+
+    OnAppearanceApplied.Broadcast();
+}
+
+void ACharacterDemoActor::RollbackAppearance()
+{
+    if (PreviousAppearanceJSON.IsEmpty())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Nothing to rollback"));
+        return;
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("Rolling back to previous appearance"));
+
+    // Don't touch PreviousAppearanceJSON — keep it as is
+    // Just re-apply it without saving
+    TSharedPtr<FJsonObject> JsonObject;
+    TSharedRef<TJsonReader<>> Reader =
+        TJsonReaderFactory<>::Create(PreviousAppearanceJSON);
+
+    if (!FJsonSerializer::Deserialize(Reader, JsonObject))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to parse rollback JSON"));
+        return;
+    }
+
+    ResetAllMorphTargets();
+
+    FString SkinTone;
+    if (JsonObject->TryGetStringField(TEXT("skin_tone"), SkinTone))
+    {
+        SetSkinTone(SkinTone);
+    }
 
     for (auto& Pair : JsonObject->Values)
     {
@@ -425,12 +494,10 @@ void ACharacterDemoActor::ApplyAppearanceJSON(FString JSONString)
         {
             double Value = Pair.Value->AsNumber();
             SetMorphTargetValue(Pair.Key, (float)Value);
-            AppliedValues.Add(Pair.Key, (float)Value);
         }
     }
 
     OnAppearanceApplied.Broadcast();
-
 }
 
 void ACharacterDemoActor::ResetAllMorphTargets()
@@ -575,4 +642,32 @@ float ACharacterDemoActor::GetMorphTargetValue(FString MorphTargetName)
 {
     if (!TargetMesh) return 0.0f;
     return TargetMesh->GetMorphTarget(FName(*MorphTargetName));
+}
+
+void ACharacterDemoActor::SetSkinTone(FString SkinTone)
+{
+    if (!TargetMesh) return;
+
+    UMaterialInterface* Mat = nullptr;
+
+    if (SkinTone == "light")        Mat = Mat_Light;
+    else if (SkinTone == "medium")  Mat = Mat_Medium;
+    else if (SkinTone == "dark")    Mat = Mat_Dark;
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Unknown skin tone: %s"), *SkinTone);
+        return;
+    }
+
+    if (!Mat) return;
+
+    // Apply to all skin slots (skip Element 0 = eyes)
+    TargetMesh->SetMaterial(1, Mat); // body
+    TargetMesh->SetMaterial(2, Mat); // nipple
+    TargetMesh->SetMaterial(3, Mat); // lips
+    TargetMesh->SetMaterial(4, Mat); // fingernails
+    TargetMesh->SetMaterial(5, Mat); // toenails
+    TargetMesh->SetMaterial(6, Mat); // ears
+
+    UE_LOG(LogTemp, Log, TEXT("Skin tone set to: %s"), *SkinTone);
 }
