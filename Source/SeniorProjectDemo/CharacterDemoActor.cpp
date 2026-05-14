@@ -261,6 +261,12 @@ FString ACharacterDemoActor::BuildPrompt(FString Description)
         "- Broad shoulders: measure-shoulder-dist-incr (0.2-0.4)\n"
         "- Wide hips: measure-hips-circ-incr, hip-scale-horiz-incr (0.2-0.4)\n"
         "- Keep values moderate to avoid deformation\n\n"
+        "SKIN TONE RULES:\n"
+        "- Always include \"skin_tone\" field\n"
+        "- Value must be exactly one of: \"light\", \"yellow\", \"dark\"\n"
+        "- light = pale/fair/caucasian/asian\n"
+        "- yellow = tan/olive/latino/south asian\n"
+        "- dark = brown/dark/african\n"
         "AGE RULES:\n"
         "- Old/elderly: head-age-incr (0.3-0.5)\n"
         "- Young/baby-faced: head-age-decr (0.2-0.4)\n\n"
@@ -404,6 +410,11 @@ void ACharacterDemoActor::SetMorphTargetValue(
 
 void ACharacterDemoActor::ApplyAppearanceJSON(FString JSONString)
 {
+    ApplyAppearanceJSONInternal(JSONString, false);
+}
+
+void ACharacterDemoActor::ApplyAppearanceJSONInternal(FString JSONString, bool bIsRollback)
+{
     TSharedPtr<FJsonObject> JsonObject;
     TSharedRef<TJsonReader<>> Reader =
         TJsonReaderFactory<>::Create(JSONString);
@@ -414,15 +425,29 @@ void ACharacterDemoActor::ApplyAppearanceJSON(FString JSONString)
         return;
     }
 
-    TMap<FString, float> AppliedValues;
+    if (!bIsRollback)
+    {
+        // Save current as the "last accepted" before applying new
+        LastAcceptedJSON = CurrentAppearanceJSON;
+        PreviousAppearanceJSON = LastAcceptedJSON;
+        CurrentAppearanceJSON = JSONString;
+        bCanRollback = !PreviousAppearanceJSON.IsEmpty();
+    }
 
+    // Skin tone
+    FString SkinTone;
+    if (JsonObject->TryGetStringField(TEXT("skin_tone"), SkinTone))
+    {
+        SetSkinTone(SkinTone);
+    }
+
+    // Morph targets
     for (auto& Pair : JsonObject->Values)
     {
         if (Pair.Value->Type == EJson::Number)
         {
             double Value = Pair.Value->AsNumber();
             SetMorphTargetValue(Pair.Key, (float)Value);
-            AppliedValues.Add(Pair.Key, (float)Value);
         }
     }
 
@@ -571,4 +596,48 @@ float ACharacterDemoActor::GetMorphTargetValue(FString MorphTargetName)
 {
     if (!TargetMesh) return 0.0f;
     return TargetMesh->GetMorphTarget(FName(*MorphTargetName));
+}
+
+void ACharacterDemoActor::SetSkinTone(FString SkinTone)
+{
+    if (!TargetMesh) return;
+
+    UMaterialInterface* Mat = nullptr;
+
+    if (SkinTone == "light")        Mat = Mat_Light;
+    else if (SkinTone == "yellow")  Mat = Mat_Medium;
+    else if (SkinTone == "dark")    Mat = Mat_Dark;
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Unknown skin tone: %s"), *SkinTone);
+        return;
+    }
+
+    if (!Mat) return;
+
+    TargetMesh->SetMaterial(1, Mat); // body
+    TargetMesh->SetMaterial(2, Mat); // nipple
+    TargetMesh->SetMaterial(3, Mat); // lips
+    TargetMesh->SetMaterial(4, Mat); // fingernails
+    TargetMesh->SetMaterial(5, Mat); // toenails
+    TargetMesh->SetMaterial(6, Mat); // ears
+
+    UE_LOG(LogTemp, Log, TEXT("Skin tone set to: %s"), *SkinTone);
+}
+
+void ACharacterDemoActor::RollbackAppearance()
+{
+    if (PreviousAppearanceJSON.IsEmpty())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Nothing to rollback"));
+        return;
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("Rolling back to previous appearance"));
+
+    // Put current back, but keep PreviousAppearanceJSON untouched
+    CurrentAppearanceJSON = PreviousAppearanceJSON;
+
+    ResetAllMorphTargets();
+    ApplyAppearanceJSONInternal(PreviousAppearanceJSON, true);
 }

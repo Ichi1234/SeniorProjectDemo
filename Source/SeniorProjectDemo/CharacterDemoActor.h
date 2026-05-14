@@ -67,13 +67,15 @@ public:
 private:
     FString PreviousAppearanceJSON;
     FString CurrentAppearanceJSON;
+    FString LastAcceptedJSON;      // ADD THIS
 
 private:
     void OnGeminiResponse(FHttpRequestPtr Request,
         FHttpResponsePtr Response, bool bSuccess);
     FString BuildPrompt(FString Description);
     FString LoadAPIKeyFromEnv();
-
+private:
+    void ApplyAppearanceJSONInternal(FString JSONString, bool bIsRollback);
 protected:
     virtual void BeginPlay() override;
 };
