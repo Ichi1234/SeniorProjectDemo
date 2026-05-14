@@ -133,6 +133,14 @@ FString ACharacterDemoActor::BuildPrompt(FString Description)
         "- head-fat-decr: use 0.1 for thin/slim face, anything above looks starving\n"
         "- NEVER use head-fat-incr and head-fat-decr together\n"
         "- If no fat/slim is mentioned, do NOT include either\n"
+
+        "SKIN TONE RULES:\n"
+        "- Add \"skin_tone\" field with value \"light\", \"medium\", or \"dark\"\n"
+        "- light = pale/fair/caucasian/asian light skin\n"
+        "- medium = tan/olive/latino/south asian\n"
+        "- dark = brown/dark/african\n"
+        "- Always include skin_tone\n"
+
         "EXAMPLE OUTPUT:\n"
         "{\n"
         "  \"head-oval\": 0.13\n"
@@ -271,6 +279,12 @@ void ACharacterDemoActor::ApplyAppearanceJSON(FString JSONString)
         return;
     }
 
+    FString SkinTone;
+    if (JsonObject->TryGetStringField(TEXT("skin_tone"), SkinTone))
+    {
+        SetSkinTone(SkinTone);
+    }
+
     TMap<FString, float> AppliedValues;
 
     for (auto& Pair : JsonObject->Values)
@@ -304,4 +318,51 @@ float ACharacterDemoActor::GetMorphTargetValue(FString MorphTargetName)
 {
     if (!TargetMesh) return 0.0f;
     return TargetMesh->GetMorphTarget(FName(*MorphTargetName));
+}
+
+void ACharacterDemoActor::SetSkinTone(FString SkinTone)
+{
+    if (!TargetMesh) return;
+
+    UMaterialInterface* Body = nullptr;
+    UMaterialInterface* Ears = nullptr;
+    UMaterialInterface* Lips = nullptr;
+    UMaterialInterface* Nails = nullptr;
+
+    if (SkinTone == "light")
+    {
+        Body = Mat_Body_Light;
+        Ears = Mat_Ears_Light;
+        Lips = Mat_Lips_Light;
+        Nails = Mat_Nails_Light;
+    }
+    else if (SkinTone == "medium")
+    {
+        Body = Mat_Body_Medium;
+        Ears = Mat_Ears_Medium;
+        Lips = Mat_Lips_Medium;
+        Nails = Mat_Nails_Medium;
+    }
+    else if (SkinTone == "dark")
+    {
+        Body = Mat_Body_Dark;
+        Ears = Mat_Ears_Dark;
+        Lips = Mat_Lips_Dark;
+        Nails = Mat_Nails_Dark;
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Unknown skin tone: %s"), *SkinTone);
+        return;
+    }
+
+    // Slot indices — check yours in the mesh details panel
+    // Order matches: Eyes=0, Body=1, Nipple=2, Lips=3, Nails(finger)=4, Nails(toe)=5, Ears=6
+    if (Body)  TargetMesh->SetMaterial(1, Body);
+    if (Lips)  TargetMesh->SetMaterial(3, Lips);
+    if (Nails) TargetMesh->SetMaterial(4, Nails);
+    if (Nails) TargetMesh->SetMaterial(5, Nails);  // toenails same material
+    if (Ears)  TargetMesh->SetMaterial(6, Ears);
+
+    UE_LOG(LogTemp, Log, TEXT("Skin tone set to: %s"), *SkinTone);
 }
