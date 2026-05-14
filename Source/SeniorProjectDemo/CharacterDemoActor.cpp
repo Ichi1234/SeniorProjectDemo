@@ -279,13 +279,60 @@ void ACharacterDemoActor::ApplyAppearanceJSON(FString JSONString)
         return;
     }
 
+    // Save previous before applying new
+    PreviousAppearanceJSON = CurrentAppearanceJSON;
+    CurrentAppearanceJSON = JSONString;
+    bCanRollback = !PreviousAppearanceJSON.IsEmpty();
+
+    // Skin tone
     FString SkinTone;
     if (JsonObject->TryGetStringField(TEXT("skin_tone"), SkinTone))
     {
         SetSkinTone(SkinTone);
     }
 
-    TMap<FString, float> AppliedValues;
+    // Morph targets
+    for (auto& Pair : JsonObject->Values)
+    {
+        if (Pair.Value->Type == EJson::Number)
+        {
+            double Value = Pair.Value->AsNumber();
+            SetMorphTargetValue(Pair.Key, (float)Value);
+        }
+    }
+
+    OnAppearanceApplied.Broadcast();
+}
+
+void ACharacterDemoActor::RollbackAppearance()
+{
+    if (PreviousAppearanceJSON.IsEmpty())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Nothing to rollback"));
+        return;
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("Rolling back to previous appearance"));
+
+    // Don't touch PreviousAppearanceJSON — keep it as is
+    // Just re-apply it without saving
+    TSharedPtr<FJsonObject> JsonObject;
+    TSharedRef<TJsonReader<>> Reader =
+        TJsonReaderFactory<>::Create(PreviousAppearanceJSON);
+
+    if (!FJsonSerializer::Deserialize(Reader, JsonObject))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to parse rollback JSON"));
+        return;
+    }
+
+    ResetAllMorphTargets();
+
+    FString SkinTone;
+    if (JsonObject->TryGetStringField(TEXT("skin_tone"), SkinTone))
+    {
+        SetSkinTone(SkinTone);
+    }
 
     for (auto& Pair : JsonObject->Values)
     {
@@ -293,12 +340,10 @@ void ACharacterDemoActor::ApplyAppearanceJSON(FString JSONString)
         {
             double Value = Pair.Value->AsNumber();
             SetMorphTargetValue(Pair.Key, (float)Value);
-            AppliedValues.Add(Pair.Key, (float)Value);
         }
     }
 
     OnAppearanceApplied.Broadcast();
-
 }
 
 void ACharacterDemoActor::ResetAllMorphTargets()

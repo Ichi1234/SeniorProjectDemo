@@ -58,6 +58,16 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skin")
     UMaterialInterface* Mat_Dark;
 
+    UFUNCTION(BlueprintCallable, Category = "Appearance")
+    void RollbackAppearance();
+
+    UPROPERTY(BlueprintReadOnly, Category = "Appearance")
+    bool bCanRollback = false;
+
+private:
+    FString PreviousAppearanceJSON;
+    FString CurrentAppearanceJSON;
+
 private:
     void OnGeminiResponse(FHttpRequestPtr Request,
         FHttpResponsePtr Response, bool bSuccess);
